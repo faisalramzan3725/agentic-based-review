@@ -1,0 +1,58 @@
+{
+  "name": "Journal - deadline monitor",
+  "nodes": [
+    {
+      "id": "d5b3e4c2-0003-4e3a-9c03-000000000001",
+      "name": "Every morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "parameters": {"rule": {"interval": [{"field": "cronExpression", "expression": "0 8 * * 1-5"}]}}
+    },
+    {
+      "id": "d5b3e4c2-0003-4e3a-9c03-000000000002",
+      "name": "List manuscripts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0],
+      "parameters": {"method": "GET", "url": "={{ $env.JOURNAL_API_URL }}/manuscripts"}
+    },
+    {
+      "id": "d5b3e4c2-0003-4e3a-9c03-000000000003",
+      "name": "Waiting on a human",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [520, 0],
+      "parameters": {
+        "conditions": {
+          "combinator": "or",
+          "options": {"caseSensitive": true, "typeValidation": "strict"},
+          "conditions": [
+            {"leftValue": "={{ $json.status }}", "rightValue": "decision_pending", "operator": {"type": "string", "operation": "equals"}},
+            {"leftValue": "={{ $json.status }}", "rightValue": "revision", "operator": {"type": "string", "operation": "contains"}}
+          ]
+        }
+      }
+    },
+    {
+      "id": "d5b3e4c2-0003-4e3a-9c03-000000000004",
+      "name": "Send reminder",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [780, 0],
+      "parameters": {
+        "fromEmail": "editorial-office@journal.example.org",
+        "toEmail": "editorial-office@journal.example.org",
+        "subject": "={{ 'Reminder: ' + $json.manuscript_id + ' is ' + $json.status }}",
+        "emailFormat": "text",
+        "text": "={{ $json.title + ' has been waiting in status ' + $json.status + '.' }}"
+      }
+    }
+  ],
+  "connections": {
+    "Every morning": {"main": [[{"node": "List manuscripts", "type": "main", "index": 0}]]},
+    "List manuscripts": {"main": [[{"node": "Waiting on a human", "type": "main", "index": 0}]]},
+    "Waiting on a human": {"main": [[{"node": "Send reminder", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"}
+}

@@ -1,0 +1,11 @@
+{
+  "title": "LiteSeg: Lightweight Attention for Efficient Skin Lesion Segmentation",
+  "authors": [
+    {"name": "Amina Rahman", "email": "amina.rahman@example.edu", "affiliation": "Department of Computer Science, Example University", "orcid": "0000-0002-1825-0097", "corresponding": true},
+    {"name": "Daniel Okafor", "email": "d.okafor@example.edu", "affiliation": "Institute of Visual Computing, Example University"}
+  ],
+  "keywords": ["image segmentation", "attention", "efficient networks", "dermoscopy"],
+  "article_type": "research_article",
+  "figures": ["LiteSeg architecture overview", "Qualitative segmentation examples"],
+  "cover_letter": "We submit an original article on efficient skin lesion segmentation for consideration."
+}

@@ -1,0 +1,49 @@
+{
+  "default": {
+    "required_sections": ["abstract", "introduction", "method", "results", "discussion", "conclusion", "references"],
+    "required_declarations": ["data availability", "conflict of interest"],
+    "abstract_words": [100, 300],
+    "max_words": 12000,
+    "min_references": 10,
+    "max_figures": 12,
+    "require_keywords": true,
+    "min_keywords": 3
+  },
+  "article_types": {
+    "research_article": {},
+    "short_communication": {"max_words": 4000, "min_references": 5, "abstract_words": [50, 200]},
+    "review": {"required_sections": ["abstract", "introduction", "conclusion", "references"], "min_references": 40}
+  },
+  "domains": {
+    "clinical": {
+      "required_declarations": ["ethics", "informed consent", "trial registration"],
+      "reviewer_capabilities": ["compliance", "methodology", "scientific_quality", "statistics"]
+    },
+    "bioinformatics": {
+      "required_declarations": ["ethics", "code availability"],
+      "reviewer_capabilities": ["methodology", "reproducibility", "compliance"]
+    },
+    "computer_vision": {
+      "required_declarations": ["code availability"],
+      "reviewer_capabilities": ["methodology", "novelty", "scientific_quality", "structure", "language"]
+    },
+    "nlp": {
+      "required_declarations": ["code availability"],
+      "reviewer_capabilities": ["methodology", "novelty", "scientific_quality", "language"]
+    },
+    "machine_learning": {
+      "required_declarations": ["code availability"],
+      "reviewer_capabilities": ["methodology", "novelty", "scientific_quality", "statistics"]
+    },
+    "general": {
+      "reviewer_capabilities": ["structure", "scientific_quality", "language", "compliance"]
+    }
+  },
+  "scope": {
+    "computer_vision": ["image", "images", "vision", "segmentation", "detection", "convolutional", "cnn", "pixel", "video", "camera", "visual", "object", "classification"],
+    "nlp": ["language", "text", "token", "tokens", "translation", "corpus", "sentence", "linguistic", "transformer", "llm", "summarization", "parsing"],
+    "machine_learning": ["learning", "neural", "training", "model", "optimization", "gradient", "dataset", "benchmark", "reinforcement", "generalization"],
+    "clinical": ["patient", "patients", "clinical", "trial", "hospital", "treatment", "diagnosis", "cohort", "randomized", "disease", "therapy", "medical"],
+    "bioinformatics": ["gene", "genome", "protein", "sequencing", "rna", "dna", "expression", "genomic", "omics", "cell"]
+  }
+}

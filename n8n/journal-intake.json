@@ -1,0 +1,42 @@
+{
+  "name": "Journal - manuscript intake",
+  "nodes": [
+    {
+      "id": "b3f1c2a0-0001-4c1e-9a01-000000000001",
+      "name": "Submission webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "parameters": {"httpMethod": "POST", "path": "submit-manuscript", "responseMode": "responseNode"}
+    },
+    {
+      "id": "b3f1c2a0-0001-4c1e-9a01-000000000002",
+      "name": "Create manuscript + start LangGraph workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.JOURNAL_API_URL }}/manuscripts",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "X-API-Key", "value": "={{ $env.JOURNAL_API_KEY }}"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}"
+      }
+    },
+    {
+      "id": "b3f1c2a0-0001-4c1e-9a01-000000000003",
+      "name": "Acknowledge author",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [520, 0],
+      "parameters": {"respondWith": "json", "responseBody": "={{ { manuscript_id: $json.manuscript_id, status: $json.status } }}"}
+    }
+  ],
+  "connections": {
+    "Submission webhook": {"main": [[{"node": "Create manuscript + start LangGraph workflow", "type": "main", "index": 0}]]},
+    "Create manuscript + start LangGraph workflow": {"main": [[{"node": "Acknowledge author", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"}
+}

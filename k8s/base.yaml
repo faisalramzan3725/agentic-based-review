@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: journal-ai
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: journal-config
+  namespace: journal-ai
+data:
+  JOURNAL_LLM_BACKEND: "auto"
+  JOURNAL_MODEL: "claude-opus-5-5"
+  JOURNAL_EFFORT: "high"
+  JOURNAL_DATA_DIR: "/data"
+  JOURNAL_CHECKPOINTER: "postgres"
+  JOURNAL_TOOL_TRANSPORT: "mcp"
+  JOURNAL_MCP_URL: "http://localhost:8765/mcp"
+  JOURNAL_HUMAN_APPROVAL: "true"
+  JOURNAL_MAX_ROUNDS: "2"
+  JOURNAL_MIN_REVIEWERS: "3"
+  JOURNAL_MAX_REVIEWERS: "6"
+  N8N_WEBHOOK_URL: "http://n8n.journal-ai.svc.cluster.local:5678/webhook/journal-events"
+  JOURNAL_DOI_PREFIX: "10.5555"
+---
+# Create the real secret out-of-band, never commit keys:
+#   kubectl -n journal-ai create secret generic journal-secrets \
+#     --from-literal=ANTHROPIC_API_KEY=... --from-literal=JOURNAL_API_KEY=... \
+#     --from-literal=JOURNAL_POSTGRES_URL=postgresql://journal:<pw>@postgres:5432/journal \
+#     --from-literal=POSTGRES_PASSWORD=<pw>
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: journal-data
+  namespace: journal-ai
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi

@@ -1,0 +1,11 @@
+{
+  "title": "MomentumBoost: A Novel Adaptive Gradient Method for Training Neural Networks",
+  "authors": [
+    {"name": "Lena Fischer", "email": "lena.fischer@example.org", "affiliation": "Machine Learning Lab, Example Institute of Technology", "corresponding": true},
+    {"name": "Omar Haddad", "email": "o.haddad@example.org", "affiliation": "Machine Learning Lab, Example Institute of Technology"}
+  ],
+  "keywords": ["optimization", "deep learning", "gradient methods", "training"],
+  "article_type": "research_article",
+  "figures": ["Training loss curves"],
+  "cover_letter": "Please consider our manuscript on a new optimizer for deep learning."
+}

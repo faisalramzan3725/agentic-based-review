@@ -1,0 +1,21 @@
+[project]
+name = "journal-ai"
+version = "1.0.0"
+description = "Agentic AI framework for end-to-end scientific journal management (LangGraph, LangChain, MCP, n8n, Kubernetes)"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[project.scripts]
+journal-ai = "journal_ai.cli:main"
+journal-ai-mcp = "journal_ai.mcp_server:main"
+
+[tool.setuptools.packages.find]
+include = ["journal_ai*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: calls the real Claude API (needs credentials and JOURNAL_LIVE_TESTS=1)",
+    "slow: spawns subprocesses / servers",
+]
+filterwarnings = ["ignore::DeprecationWarning"]

@@ -1,0 +1,80 @@
+# API + LangGraph orchestrator, with the MCP tool server as a sidecar that
+# shares the manuscript store/PDF volume. Reviewer agents run in parallel
+# inside each workflow (LangGraph Send fan-out); LLM work is I/O-bound, so one
+# pod handles many concurrent manuscripts.
+#
+# replicas: 1 because the manuscript store is SQLite on a ReadWriteOnce volume.
+# To scale out, move the store to PostgreSQL / object storage and raise replicas
+# (checkpoints are already in PostgreSQL).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: journal-api
+  namespace: journal-ai
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app: journal-api}
+  template:
+    metadata:
+      labels: {app: journal-api}
+    spec:
+      securityContext: {runAsNonRoot: true, runAsUser: 10001, fsGroup: 10001}
+      containers:
+        - name: api
+          image: journal-ai:1.0.0
+          ports: [{containerPort: 8000, name: http}]
+          envFrom:
+            - configMapRef: {name: journal-config}
+            - secretRef: {name: journal-secrets}
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 30
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {cpu: "2", memory: 2Gi}
+          volumeMounts: [{name: data, mountPath: /data}]
+        - name: mcp-tools
+          image: journal-ai:1.0.0
+          command: ["python", "-m", "journal_ai.mcp_server", "--transport", "streamable-http", "--host", "127.0.0.1", "--port", "8765"]
+          envFrom:
+            - configMapRef: {name: journal-config}
+          ports: [{containerPort: 8765, name: mcp}]
+          readinessProbe:
+            tcpSocket: {port: mcp}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: "1", memory: 1Gi}
+          volumeMounts: [{name: data, mountPath: /data}]
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: journal-data}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: journal-api
+  namespace: journal-ai
+spec:
+  selector: {app: journal-api}
+  ports: [{port: 80, targetPort: http, name: http}]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: journal-api
+  namespace: journal-ai
+spec:
+  rules:
+    - host: journal.example.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: {name: journal-api, port: {number: 80}}

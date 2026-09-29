@@ -1,0 +1,11 @@
+{
+  "title": "A Smartphone Coaching Programme for Blood Pressure Control: A Randomized Controlled Trial",
+  "authors": [
+    {"name": "Maria Santos", "email": "m.santos@example-hospital.org", "affiliation": "Department of Cardiology, Example General Hospital", "corresponding": true},
+    {"name": "Kwame Mensah", "email": "k.mensah@example-hospital.org", "affiliation": "Clinical Research Unit, Example General Hospital"}
+  ],
+  "keywords": ["hypertension", "mobile health", "randomized controlled trial", "blood pressure"],
+  "article_type": "research_article",
+  "figures": ["Participant flow diagram"],
+  "cover_letter": "We submit the primary results of our randomized trial of a smartphone coaching programme."
+}

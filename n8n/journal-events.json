@@ -1,0 +1,97 @@
+{
+  "name": "Journal - lifecycle notifications",
+  "nodes": [
+    {
+      "id": "c4a2d3b1-0002-4d2f-8b02-000000000001",
+      "name": "Journal events webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 200],
+      "parameters": {"httpMethod": "POST", "path": "journal-events", "responseMode": "onReceived"}
+    },
+    {
+      "id": "c4a2d3b1-0002-4d2f-8b02-000000000002",
+      "name": "Route by status",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [260, 200],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "editor",
+              "renameOutput": true,
+              "conditions": {
+                "combinator": "and",
+                "options": {"caseSensitive": true, "typeValidation": "strict"},
+                "conditions": [{"leftValue": "={{ $json.body.status }}", "rightValue": "decision_pending", "operator": {"type": "string", "operation": "equals"}}]
+              }
+            },
+            {
+              "outputKey": "author",
+              "renameOutput": true,
+              "conditions": {
+                "combinator": "or",
+                "options": {"caseSensitive": true, "typeValidation": "strict"},
+                "conditions": [
+                  {"leftValue": "={{ $json.body.status }}", "rightValue": "decision_", "operator": {"type": "string", "operation": "startsWith"}},
+                  {"leftValue": "={{ $json.body.status }}", "rightValue": "desk_rejected", "operator": {"type": "string", "operation": "equals"}},
+                  {"leftValue": "={{ $json.body.status }}", "rightValue": "published", "operator": {"type": "string", "operation": "equals"}}
+                ]
+              }
+            }
+          ]
+        },
+        "options": {"fallbackOutput": "extra"}
+      }
+    },
+    {
+      "id": "c4a2d3b1-0002-4d2f-8b02-000000000003",
+      "name": "Fetch manuscript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.JOURNAL_API_URL }}/manuscripts/{{ $json.body.manuscript_id }}"
+      }
+    },
+    {
+      "id": "c4a2d3b1-0002-4d2f-8b02-000000000004",
+      "name": "Notify handling editor",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [520, 100],
+      "parameters": {
+        "fromEmail": "editorial-office@journal.example.org",
+        "toEmail": "handling-editor@journal.example.org",
+        "subject": "={{ 'Decision needed: ' + $json.body.manuscript_id + ' (' + $json.body.payload.recommendation + ')' }}",
+        "emailFormat": "text",
+        "text": "={{ 'The agentic review of ' + $json.body.manuscript_id + ' recommends ' + $json.body.payload.recommendation + '. Approve or override via POST /manuscripts/' + $json.body.manuscript_id + '/editor-decision' }}"
+      }
+    },
+    {
+      "id": "c4a2d3b1-0002-4d2f-8b02-000000000005",
+      "name": "Notify corresponding author",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [780, 300],
+      "parameters": {
+        "fromEmail": "editorial-office@journal.example.org",
+        "toEmail": "={{ $json.corresponding_author }}",
+        "subject": "={{ $json.manuscript_id + ': ' + $json.status.replace('_', ' ') }}",
+        "emailFormat": "text",
+        "text": "={{ ($json.decision && $json.decision.decision_letter) || ('Status update: ' + $json.status) }}"
+      }
+    }
+  ],
+  "connections": {
+    "Journal events webhook": {"main": [[{"node": "Route by status", "type": "main", "index": 0}]]},
+    "Route by status": {"main": [
+      [{"node": "Notify handling editor", "type": "main", "index": 0}],
+      [{"node": "Fetch manuscript", "type": "main", "index": 0}]
+    ]},
+    "Fetch manuscript": {"main": [[{"node": "Notify corresponding author", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"}
+}

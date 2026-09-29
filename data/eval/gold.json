@@ -1,0 +1,33 @@
+{
+  "description": "Gold annotations for the bundled sample manuscripts. gold_concerns = concern ids a careful human reviewer would raise in round 1 (restricted to the reviewers the domain policy assigns); gold_resolutions = expected status of each tracked concern per round.",
+  "manuscripts": [
+    {
+      "sample": "cv_segmentation",
+      "expected_final_status": "published",
+      "gold_concerns": ["LANG-003"],
+      "gold_resolutions": {"2": {"LANG-003": "addressed"}}
+    },
+    {
+      "sample": "ml_optimizer",
+      "expected_final_status": "published",
+      "gold_concerns": ["METH-002", "METH-003", "METH-004", "METH-005", "SCI-001", "SCI-003", "SCI-004", "SCI-005"],
+      "gold_resolutions": {
+        "2": {"METH-002": "addressed", "METH-003": "addressed", "METH-004": "addressed", "METH-005": "addressed",
+              "SCI-001": "addressed", "SCI-003": "not_addressed", "SCI-004": "partially_addressed", "SCI-005": "not_addressed"},
+        "3": {"SCI-003": "addressed", "SCI-004": "addressed", "SCI-005": "addressed"}
+      }
+    },
+    {
+      "sample": "clinical_trial",
+      "expected_final_status": "published",
+      "gold_concerns": ["COMP-002", "COMP-003", "COMP-004"],
+      "gold_resolutions": {"2": {"COMP-002": "addressed", "COMP-003": "addressed", "COMP-004": "addressed"}}
+    },
+    {
+      "sample": "incomplete",
+      "expected_final_status": "desk_rejected",
+      "gold_concerns": [],
+      "gold_resolutions": {}
+    }
+  ]
+}

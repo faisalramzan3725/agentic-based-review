@@ -1,0 +1,45 @@
+services:
+  api:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      JOURNAL_LLM_BACKEND: ${JOURNAL_LLM_BACKEND:-auto}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      JOURNAL_CHECKPOINTER: postgres
+      JOURNAL_POSTGRES_URL: postgresql://journal:journal@postgres:5432/journal
+      JOURNAL_TOOL_TRANSPORT: mcp
+      JOURNAL_MCP_URL: http://mcp:8765/mcp
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/journal-events
+      JOURNAL_API_KEY: ${JOURNAL_API_KEY:-change-me}
+    volumes: ["journal-data:/data"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      mcp: {condition: service_started}
+
+  mcp:
+    build: .
+    command: ["python", "-m", "journal_ai.mcp_server", "--transport", "streamable-http", "--port", "8765"]
+    volumes: ["journal-data:/data"]   # shares the manuscript DB and PDFs with the API
+
+  postgres:
+    image: postgres:16
+    environment: {POSTGRES_USER: journal, POSTGRES_PASSWORD: journal, POSTGRES_DB: journal}
+    volumes: ["pg-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U journal"]
+      interval: 5s
+      retries: 10
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports: ["5678:5678"]
+    environment:
+      JOURNAL_API_URL: http://api:8000
+      JOURNAL_API_KEY: ${JOURNAL_API_KEY:-change-me}
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+    volumes: ["n8n-data:/home/node/.n8n", "./n8n:/workflows:ro"]
+
+volumes:
+  journal-data:
+  pg-data:
+  n8n-data:

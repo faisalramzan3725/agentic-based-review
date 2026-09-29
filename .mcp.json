@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "journal-ai": {
+      "command": "python",
+      "args": ["-m", "journal_ai.mcp_server", "--transport", "stdio"],
+      "env": {
+        "PYTHONPATH": "C:\\Users\\Faisal Ramzan\\Desktop\\Journal Agentic AI",
+        "JOURNAL_DATA_DIR": "C:\\Users\\Faisal Ramzan\\Desktop\\Journal Agentic AI\\var"
+      }
+    }
+  }
+}
